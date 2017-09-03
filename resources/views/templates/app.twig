@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Slim Test</title>
+    <link rel="stylesheet" href="{{base_url()}}/css/font-awesome.min.css">    
+    <link rel="stylesheet" href="{{base_url()}}/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{base_url()}}/css/style.css">
+    <link rel="stylesheet" href="{{base_url()}}/css/simplemde.min.css">
+</head>
+<body>
+    
+    {% include 'templates/partials/nav.twig' %}
+
+    <div class="container">
+
+    {% include 'templates/partials/flash.twig' %}
+    
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>

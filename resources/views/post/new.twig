@@ -1,0 +1,50 @@
+{% extends 'templates/app.twig' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">New Post</div>
+            <div class="panel-body">
+                <form action="{{ path_for('post.new') }}" method="POST">
+                    <div class="form-group{{ errors.title ? ' has-error' : '' }}">
+                        <label for="title">Post Title</label>
+                        <input type="text" name="title" id="title" placeholder="Post Title" class="form-control" value = "{{ old.title }}">
+                        {% if (errors.title) %}
+                            <div class="help-block"> {{ errors.title | first }} </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group{{ errors.slug ? ' has-error' : '' }}">
+                        <label for="slug">Permalink</label>
+                        <input type="text" name="slug" id="slug" placeholder="post-slug-goes-here" class="form-control"  value = "{{ old.slug }}">
+                        {% if (errors.slug) %}
+                            <div class="help-block"> {{ errors.slug | first }} </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group{{ errors.content ? ' has-error' : '' }}">
+                        <label for="content">Post Content</label>
+                        <textarea name="content" id="content" class="form-control">{{ old.content }}</textarea>
+                        {% if (errors.content) %}
+                            <div class="help-block"> {{ errors.content | first }} </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" name="published" id="published" {{ old.published ? 'checked' :'' }}>
+                        &nbsp; <label for="content">Publish</label>                        
+                    </div>
+                        
+                    {{ csrf.field | raw }}
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{base_url()}}/js/simplemde.min.js"></script>
+<script>
+    var simplemde = new SimpleMDE({ element: document.getElementById("content") });
+</script>
+{% endblock %}

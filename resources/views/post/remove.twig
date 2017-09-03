@@ -1,0 +1,23 @@
+{% extends 'templates/app.twig' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b>Are you sure?</b>
+            </div>
+            <div class="panel-body">
+                Do you really want to to delete the post : <br>
+                <strong>{{post.title}}</strong>
+            </div>
+            <div class="panel-footer">
+                <form action="{{ path_for('post.delete') }}" method="POST">
+                    {{ csrf.field | raw }}
+                    <input type="hidden" name="id" value="{{post.id}}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <a href="{{path_for('post')}}" class="btn btn-info">Cancel</a>
+                </form>
+            </div>
+    
+{% endblock %}

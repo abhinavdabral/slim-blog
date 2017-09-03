@@ -1,0 +1,15 @@
+{% extends 'templates/app.twig' %}
+
+{% block content %}
+<div class="row">
+    
+    <div class="page-header">
+        <h1>{{post.title}}</h1>
+    </div>
+    <small>On {{post.getCreatedAt()}}, by <strong>{{post.user.name}}</strong></small>
+    <p>{{post.content}}</p>
+    <br>
+    <br>
+    <a href="{{path_for('post')}}" class="btn btn-primary">Back</a>
+</div>
+{% endblock %}
