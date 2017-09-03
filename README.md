@@ -1,5 +1,5 @@
 # Slim Blog
-===========
+
 Simple Slim Framework based blogging platform. It's intended to generate flat HTML files, that should really help in making the site super-fast and prevent any database calls from client side, whatesoever (with an exception of searches, if implemented).
 
 ## ToDo
