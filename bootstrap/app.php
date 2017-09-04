@@ -83,6 +83,10 @@ $container['PostController'] = function($container){
     return new \App\Controllers\PostController($container);
 };
 
+$container['CategoryController'] = function($container){
+    return new \App\Controllers\CategoryController($container);
+};
+
 $container['ToHTML'] = function($container){
     return new \App\ToHTML\ToHTML($container);
 };

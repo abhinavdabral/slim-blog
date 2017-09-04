@@ -12,6 +12,7 @@
                 <th>#</th>
                 <th>Post Title</th>
                 <th>Author</th>
+                <th>Category</th>
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>Published</th>                
@@ -24,6 +25,7 @@
                 <td>{{post.id}}</td>
                 <td><a href="{{path_for('post.show', {'post':post.id})}}">{{ post.title }}</a></td>
                 <td>{{post.user.name}}</td>
+                <td>{{post.category.name}}</td>
                 <td>{{post.getCreatedAt()}}</td>
                 <td>{{post.getUpdatedAt()}}</td>  
                 <td><span class="fa fa-{{post.published?'check':'close'}}"><span></td>  

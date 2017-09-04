@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\User;
 use App\Models\Post;
+use App\Models\Category;
 use Respect\Validation\Validator as v;
 
 class PostController extends Controller{
@@ -29,6 +30,8 @@ class PostController extends Controller{
     }
 
     public function new($request, $response){
+        $categories = Category::orderBy('name')->get();
+        $this->view->getEnvironment()->addGlobal('categories', $categories); 
         return $this->view->render($response, 'post\new.twig');        
     }
     public function create($request, $response){
@@ -36,7 +39,8 @@ class PostController extends Controller{
         $validation = $this->validator->validate($request, [
             'title'     => v::notEmpty(),
             'slug'      => v::noWhitespace()->notEmpty()->slug()->permalinkAvailable(),
-            'content'   => v::notEmpty()
+            'content'   => v::notEmpty(),
+            'category'  => v::notEmpty()
         ]);
 
         if($validation->failed()){
@@ -48,12 +52,12 @@ class PostController extends Controller{
             'title'         => $request->getParam('title'),
             'slug'          => mb_strtolower($request->getParam('slug')),
             'content'       => filter_var(strip_tags(htmlentities($request->getParam('content'))), FILTER_SANITIZE_STRING),
-            'category_id'   => 1,
+            'category_id'   => $request->getParam('category'),
             'published'     => $request->getParam('published')?1:0,
             'user_id'       => $this->auth->user()->id,
         ]);
         
-        $this->flash->addMessage('info', 'Post published.');            
+        $this->flash->addMessage('info', 'Post saved successfully.');            
         return $response->withRedirect($this->router->pathFor('post'));  
 
     }
@@ -66,6 +70,8 @@ class PostController extends Controller{
             return $notFoundHandler($request, $response);
         }
 
+        $categories = Category::orderBy('name')->get();
+        $this->view->getEnvironment()->addGlobal('categories', $categories);
         $this->view->getEnvironment()->addGlobal('post', $post);
         return $this->view->render($response, 'post\edit.twig');
     }
@@ -80,7 +86,8 @@ class PostController extends Controller{
         $validation = $this->validator->validate($request, [
             'title'     => v::notEmpty(),
             'slug'      => v::noWhitespace()->notEmpty()->slug()->permalinkAvailable($post->slug),
-            'content'   => v::notEmpty()
+            'content'   => v::notEmpty(),
+            'category'  => v::notEmpty()            
         ]);
 
         if($validation->failed()){
@@ -92,7 +99,8 @@ class PostController extends Controller{
             ->update([
             'title'         => $request->getParam('title'),
             'slug'          => mb_strtolower($request->getParam('slug')),
-            'published'     => $request->getParam('published')?1:0,            
+            'published'     => $request->getParam('published')?1:0,  
+            'category_id'      => $request->getParam('category'),
             'content'       => filter_var(strip_tags(htmlentities($request->getParam('content'))), FILTER_SANITIZE_STRING)
         ]);
 

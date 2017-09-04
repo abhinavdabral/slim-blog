@@ -24,6 +24,18 @@
                         {% endif %}
                     </div>
 
+                    <div class="form-group{{ errors.category ? ' has-error' : '' }}">
+                        <label for="category">Category</label>
+                        <select name="category">
+                            {% for category in categories %}
+                                <option value="{{category.id}}" {{post.category.id|default(old.category)==category.id?'selected':''}}>{{category.name}}</option>
+                            {% endfor %}
+                        </select>
+                        {% if (errors.category) %}
+                            <div class="help-block"> {{ errors.category | first }} </div>
+                        {% endif %}
+                    </div>
+
                     <div class="form-group{{ errors.content ? ' has-error' : '' }}">
                         <label for="content">Post Content</label>
                         <textarea name="content" id="content" class="form-control">{{ post.content|default(old.content) }}</textarea>

@@ -39,6 +39,24 @@ $app->group('', function() {
 
     });
 
+    $this->group('/category', function() {
+        $this->get('/', 'CategoryController:index')->setName('category');  
+
+        $this->get('/show/{category}', 'CategoryController:show')->setName('category.show');
+
+        $this->get('/new', 'CategoryController:new')->setName('category.new');
+        $this->post('/new', 'CategoryController:create');
+
+        $this->get('/edit/{category}', 'CategoryController:edit')->setName('category.edit');
+        $this->post('/edit/{category}', 'CategoryController:update');
+
+        $this->get('/remove/{category}', 'CategoryController:remove')->setName('category.remove');
+        $this->post('/remove', 'CategoryController:delete')->setName('category.delete');
+
+    });
+
+    
+
     $this->group('/user', function() {
         $this->get('/', 'UserController:index')->setName('user');  
         

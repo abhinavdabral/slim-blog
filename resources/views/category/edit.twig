@@ -1,0 +1,27 @@
+{% extends 'templates/app.twig' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">New Post</div>
+            <div class="panel-body">
+                <form action="{{ path_for('category.edit', { 'category': category.id|default(old.id) }) }}" method="POST">
+                    <input type="hidden" name="id" value="{{ category.id|default(old.id) }}">
+                    <div class="form-group{{ errors.name ? ' has-error' : '' }}">
+                        <label for="name">Post Title</label>
+                        <input type="text" name="name" id="name" placeholder="Post Title" class="form-control" value = "{{ category.name|default(old.name) }}">
+                        {% if (errors.name) %}
+                            <div class="help-block"> {{ errors.name | first }} </div>
+                        {% endif %}
+                    </div>
+                    {{ csrf.field | raw }}
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
