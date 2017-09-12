@@ -13,6 +13,10 @@ class User extends Model {
         return $this->hasMany('App\Models\Post');
     }
 
+    public function roles(){
+        return $this->belongsToMany('App\Models\Role');
+    }    
+
     public function setPassword($password){
         $this->update([
             'password'  =>  password_hash($password, PASSWORD_DEFAULT)
