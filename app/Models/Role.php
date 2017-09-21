@@ -10,9 +10,10 @@ class Role extends Model {
     protected $guarded = [];
 
     public function users(){
-        return $this->belongsToMany('App\Model\User');
+        return $this->belongsToMany('App\Models\User', 'role_user');
     }
+
     public function permissions(){
-        return $this->belongsToMany('App\Model\Permission');
+        return $this->belongsToMany('App\Models\Permission');
     }
 }

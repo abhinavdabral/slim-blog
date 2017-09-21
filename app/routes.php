@@ -99,5 +99,11 @@ $app->get('/test_post/{post}', function($req, $resp, $args){
     // foreach($posts as $post)
     print_r($user->name);
 });
+
+$app->get('/test', function($req, $resp, $args){
+    $users = User::find(1)->with('roles')->get();
+    // foreach($users as $user)
+        print_r($users->roles->name);
+});
     
 

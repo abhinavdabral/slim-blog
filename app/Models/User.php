@@ -14,7 +14,7 @@ class User extends Model {
     }
 
     public function roles(){
-        return $this->belongsToMany('App\Models\Role');
+        return $this->belongsToMany('App\Models\Role', 'role_user');
     }    
 
     public function setPassword($password){
