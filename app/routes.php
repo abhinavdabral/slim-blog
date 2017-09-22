@@ -5,6 +5,7 @@ use App\Middleware\CheckPermissionMiddleware;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Role;
 
 $app->group('', function() {
     $this->get('/auth/signup', 'AuthController:getSignUp')->setName('auth.signup');
@@ -126,3 +127,11 @@ $app->get('/securePage', function($req, $resp, $args){
 })->add(new CheckPermissionMiddleware($container, 'Permission D'));
     
 
+$app->get('/permtest', function($req, $resp, $args){
+    $R = Role::with('permissions')->find(9);
+    for($i=1; $i<=4;$i++)
+    {
+        echo $i.'='.$R->hasPermission($i).'<br>';
+    }
+    dd();
+});

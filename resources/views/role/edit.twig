@@ -9,12 +9,28 @@
                 <form action="{{ path_for('role.edit', { 'role': role.id|default(old.id) }) }}" method="POST">
                     <input type="hidden" name="id" value="{{ role.id|default(old.id) }}">
                     <div class="form-group{{ errors.name ? ' has-error' : '' }}">
-                        <label for="name">Post Title</label>
-                        <input type="text" name="name" id="name" placeholder="Post Title" class="form-control" value = "{{ role.name|default(old.name) }}">
+                        <label for="name">Role Name</label>
+                        <input type="text" name="name" id="name" placeholder="Role Name" class="form-control" value = "{{ role.name|default(old.name) }}">
                         {% if (errors.name) %}
                             <div class="help-block"> {{ errors.name | first }} </div>
                         {% endif %}
                     </div>
+
+                    <div class="{{ errors.name ? 'has-error' : '' }}">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Permissions</div>
+                                <div class="panel-body">
+                                    {% for permission in permissions %}
+                                    <div class="form-group col-xs-6">
+                                        {% set fieldName = "p" ~ permission.id %}
+                                        <input type="checkbox" name="p{{ permission.id }}" id="p{{ permission.id }}" {{ role.hasPermission(permission.id) | default(attribute(old, fieldName) is defined) ? 'checked' :'' }}>
+                                        &nbsp; <label for="p{{ permission.id }}">{{ permission.name }}</label>                        
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>               
                     {{ csrf.field | raw }}
 
                     <button type="submit" class="btn btn-primary">Save</button>
