@@ -87,6 +87,10 @@ $container['CategoryController'] = function($container){
     return new \App\Controllers\CategoryController($container);
 };
 
+$container['RoleController'] = function($container){
+    return new \App\Controllers\RoleController($container);
+};
+
 $container['ToHTML'] = function($container){
     return new \App\ToHTML\ToHTML($container);
 };

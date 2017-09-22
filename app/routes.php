@@ -1,6 +1,7 @@
 <?php
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
+use App\Middleware\CheckPermissionMiddleware;
 
 use App\Models\Post;
 use App\Models\User;
@@ -73,7 +74,20 @@ $app->group('', function() {
     });        
 
     $this->group('/role', function() {
-    });
+        $this->get('/', 'RoleController:index')->setName('role');  
+        
+        $this->get('/show/{role}', 'RoleController:show')->setName('role.show');
+
+        $this->get('/new', 'RoleController:new')->setName('role.new');
+        $this->post('/new', 'RoleController:create');
+
+        $this->get('/edit/{role}', 'RoleController:edit')->setName('role.edit');
+        $this->post('/edit/{role}', 'RoleController:update');
+
+        $this->get('/remove/{role}', 'RoleController:remove')->setName('role.remove');
+        $this->post('/remove', 'RoleController:delete')->setName('role.delete');
+    });        
+
 
 })->add(new AuthMiddleware($container));
 
@@ -101,9 +115,14 @@ $app->get('/test_post/{post}', function($req, $resp, $args){
 });
 
 $app->get('/test', function($req, $resp, $args){
-    $users = User::find(1)->with('roles')->get();
-    // foreach($users as $user)
-        print_r($users->roles->name);
+    $p = "PermissionD";
+    $users = User::find(1)->get();
+    foreach($users as $user)
+        print_r($user->hasPermission($p));
 });
+
+$app->get('/securePage', function($req, $resp, $args){
+    return 'Hello';
+})->add(new CheckPermissionMiddleware($container, 'Permission D'));
     
 
