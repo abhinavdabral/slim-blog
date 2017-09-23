@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Post;
 use App\Models\Role;
+use App\Models\Permission;
+use Carbon\Carbon;
+
 
 class User extends Model {
 
@@ -16,6 +19,8 @@ class User extends Model {
 
     // To store permissions of the user
     protected $permissions=[];
+
+    protected $arr_roles=[];
 
     /**
      * Constructor for User model.
@@ -52,12 +57,22 @@ class User extends Model {
      * available to the user.
      */
      public function refreshPermissions(){
-        $roles = $this->roles()->get();
+        $this->load('roles.permissions');
+        $roles = $this->roles;
         $permissions = [];
         foreach($roles as $role)
             $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
         
-        $this->permissions = array_unique($permissions);
+        $this->permissions = array_unique($permissions);        
+    }
+
+    /** 
+     * Because BelongsToManyThrough is too mainstream for this.
+     * This function simply returns an array with all permissions
+     * available to the user.
+     */
+     public function refreshRoles(){      
+        $this->arr_roles = $this->roles->pluck('id')->toArray();
     }
 
     /**
@@ -73,6 +88,32 @@ class User extends Model {
         return in_array($permission, $this->permissions);
     }
 
+    public function getPermissions(){
+        $this->refreshPermissions();
+        return $this->permissions;
+    }
+
+    public function hasRole($role){
+        $this->refreshRoles();   
+        return in_array($role, $this->arr_roles);
+    }
+
+
+    public function setRoles($roles){
+        $this->roles()->detach();
+        $this->roles()->attach($roles);
+        $this->save();
+        return true;
+    }
+
+    public function detachAndDelete(){
+        $this->roles()->detach();
+        // Detach Posts
+        $this->save();                
+        $this->destroy($this->id);
+        return true;
+    }
+
     /**
      * This function sets the password for the current user.
      * 
@@ -82,5 +123,25 @@ class User extends Model {
         $this->update([
             'password'  =>  password_hash($password, PASSWORD_DEFAULT)
         ]);
+    }
+
+     /**
+     * Mutator method that returns the Created At (TIMESTAMP)
+     * in Carbon format.
+     * 
+     * @return Eloquent Relation
+     */
+     public function getCreatedAt(){
+        return Carbon::parse($this->created_at)->diffForHumans();
+    }
+
+     /**
+     * Mutator method that returns the Updated At (TIMESTAMP)
+     * in Carbon format.
+     * 
+     * @return Eloquent Relation
+     */
+    public function getUpdatedAt(){
+        return Carbon::parse($this->updated_at)->diffForHumans();
     }
 }

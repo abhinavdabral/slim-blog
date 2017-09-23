@@ -17,6 +17,23 @@ class RoleController extends Controller{
         return $this->view->render($response, 'role\index.twig');      
     }
 
+    public function show($request, $response, $args){
+        $role = Role::with('permissions')->find($args['role']);
+        // $roles = $user->roles;
+        // foreach($roles as $role)
+        //     foreach($role->permissions as $p)
+        //         print_r($p->name);
+        // print_r($user->getPermissions());
+        // dd();
+        if($role==NULL){
+            $notFoundHandler = $this->container->get('notFoundHandler');
+            return $notFoundHandler($request, $response);
+        }
+        
+        $this->view->getEnvironment()->addGlobal('role', $role);
+        return $this->view->render($response, 'role\show.twig');      
+    }
+
     public function new($request, $response){
                    
         $permissions = Permission::all();

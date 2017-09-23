@@ -124,7 +124,7 @@ $app->get('/test', function($req, $resp, $args){
 
 $app->get('/securePage', function($req, $resp, $args){
     return 'Hello';
-})->add(new CheckPermissionMiddleware($container, 'Permission D'));
+})->add(new CheckPermissionMiddleware($container, 'PERMISSIONA'));
     
 
 $app->get('/permtest', function($req, $resp, $args){

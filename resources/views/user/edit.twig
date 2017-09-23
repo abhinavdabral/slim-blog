@@ -1,0 +1,61 @@
+{% extends 'templates/app.twig' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">New User</div>
+            <div class="panel-body">
+                <form action="{{ path_for('user.edit', { 'user': user.id|default(old.id) }) }}" method="POST">
+                    <input type="hidden" name="id" value="{{ user.id|default(old.id) }}">
+                    <div class="form-group{{ errors.email ? ' has-error' : '' }}">
+                        <label for="email">E-Mail Address</label>
+                        <input type="email" name="email" id="email" placeholder="jdoe@example.com" class="form-control"  value = "{{ user.email | default(old.email) }}">
+                        {% if (errors.email) %}
+                            <div class="help-block"> {{ errors.email | first }} </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group{{ errors.name ? ' has-error' : '' }}">
+                        <label for="name">Display Name</label>
+                        <input type="text" name="name" id="name" placeholder="John Doe" class="form-control" value = "{{ user.name | default(old.name) }}">
+                        {% if (errors.name) %}
+                            <div class="help-block"> {{ errors.name | first }} </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group{{ errors.password ? ' has-error' : '' }}">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" id="password" class="form-control">
+                        {% if (errors.password) %}
+                            <div class="help-block"> {{ errors.password | first }} </div>
+                        {% else %}
+                            <div class="help-block">To keep the old password, leave this field blank</div>                        
+                        {% endif %}
+                    </div>
+
+                    <div class="{{ errors.name ? 'has-error' : '' }}">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">Roles</div>
+                                <div class="panel-body">
+                                    {% for role in roles %}
+                                    <div class="form-group col-xs-6">
+                                        {% set fieldName = "r" ~ role.id %}
+                                        <input type="checkbox" name="r{{ role.id }}" id="p{{ role.id }}" {{ user.hasRole(role.id) | default(attribute(old, fieldName) is defined) ? 'checked' :'' }}>
+                                        &nbsp; <label for="r{{ role.id }}">{{ role.name }}</label>                        
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>               
+
+                    {{ csrf.field | raw }}
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

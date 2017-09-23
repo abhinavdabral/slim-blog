@@ -3,128 +3,160 @@
 namespace App\Controllers;
 
 use App\Models\User;
-use App\Models\Post;
-use App\Models\Category;
+use App\Models\Role;
 use Respect\Validation\Validator as v;
 
-class PostController extends Controller{
+class UserController extends Controller{
     public function index($request, $response){
 
         // Dashboard
-        $posts = Post::orderBy('created_at', 'desc')->get();
+        $users = User::with('roles')->orderBy('id')->get();
 
-        $this->view->getEnvironment()->addGlobal('posts', $posts);    
-        return $this->view->render($response, 'post\index.twig');      
+        $this->view->getEnvironment()->addGlobal('users', $users);    
+        return $this->view->render($response, 'user\index.twig');      
     }
 
     public function show($request, $response, $args){
-        $post = Post::find($args['post']);
-        
-        if($post==NULL){
+        $user = User::find($args['user']);
+        // $roles = $user->roles;
+        // foreach($roles as $role)
+        //     foreach($role->permissions as $p)
+        //         print_r($p->name);
+        // print_r($user->getPermissions());
+        // dd();
+        if($user==NULL){
             $notFoundHandler = $this->container->get('notFoundHandler');
             return $notFoundHandler($request, $response);
         }
         
-        $this->view->getEnvironment()->addGlobal('post', $post);
-        return $this->view->render($response, 'post\show.twig');      
+        $this->view->getEnvironment()->addGlobal('user', $user);
+        return $this->view->render($response, 'user\show.twig');      
     }
 
     public function new($request, $response){
-        $categories = Category::orderBy('name')->get();
-        $this->view->getEnvironment()->addGlobal('categories', $categories); 
-        return $this->view->render($response, 'post\new.twig');        
+        $roles = Role::orderBy('name')->get();
+        $this->view->getEnvironment()->addGlobal('roles', $roles); 
+        return $this->view->render($response, 'user\new.twig');        
     }
     public function create($request, $response){
 
         $validation = $this->validator->validate($request, [
-            'title'     => v::notEmpty(),
-            'slug'      => v::noWhitespace()->notEmpty()->slug()->permalinkAvailable(),
-            'content'   => v::notEmpty(),
-            'category'  => v::notEmpty()
+            'email'     => v::noWhitespace()->notEmpty()->email()->emailAvailable(),
+            'name'      => v::notEmpty()->alpha(),
+            'password'  => v::noWhitespace()->notEmpty(),
         ]);
 
         if($validation->failed()){
-            // $this->flash->addMessage('error', $validation->getMessages());            
-            return $response->withRedirect($this->router->pathFor('post.new'));                    
+            // $this->flash->addMessage('error', 'Validation failed while submitting the form. Please try again.');            
+            return $response->withRedirect($this->router->pathFor('user.new'));                    
         }
 
-        $post = Post::create([
-            'title'         => $request->getParam('title'),
-            'slug'          => mb_strtolower($request->getParam('slug')),
-            'content'       => filter_var(strip_tags(htmlentities($request->getParam('content'))), FILTER_SANITIZE_STRING),
-            'category_id'   => $request->getParam('category'),
-            'published'     => $request->getParam('published')?1:0,
-            'user_id'       => $this->auth->user()->id,
-        ]);
+        $roles = [];
         
-        $this->flash->addMessage('info', 'Post saved successfully.');            
-        return $response->withRedirect($this->router->pathFor('post'));  
+        foreach($request->getParams() as $key=>$value){
+            if(strcmp(substr($key, 0, 1), 'r')===0){
+                array_push($roles, str_replace('r', '', $key));
+            }
+        }
+
+        if(sizeof($roles)<=0){
+            $this->flash->addMessage('error', "Users must have at least one role assigned to them.");            
+            return $response->withRedirect($this->router->pathFor('user.new'));                    
+        }
+
+        $user = User::create([
+            'email' => $request->getParam('email'),
+            'name' => $request->getParam('name'),
+            'password' => password_hash($request->getParam('password'), PASSWORD_DEFAULT)
+        ]);
+
+        $user->setRoles($roles);
+        
+
+        $this->flash->addMessage('info', 'User saved successfully.');            
+        return $response->withRedirect($this->router->pathFor('user'));  
 
     }
 
     public function edit($request, $response, $args){
-        $post = Post::find($args['post']);
+        $user = User::with('roles')->find($args['user']);
         
-        if($post==NULL){
+        if($user==NULL){
             $notFoundHandler = $this->container->get('notFoundHandler');
             return $notFoundHandler($request, $response);
         }
 
-        $categories = Category::orderBy('name')->get();
-        $this->view->getEnvironment()->addGlobal('categories', $categories);
-        $this->view->getEnvironment()->addGlobal('post', $post);
-        return $this->view->render($response, 'post\edit.twig');
+        $roles = Role::orderBy('name')->get();
+        $this->view->getEnvironment()->addGlobal('roles', $roles);
+        $this->view->getEnvironment()->addGlobal('user', $user);
+        return $this->view->render($response, 'user\edit.twig');
     }
     public function update($request, $response){
-        $post = Post::find($request->getParam('id'));
+        $user = User::find($request->getParam('id'));
         
-        if($post==NULL){
+        if($user==NULL){
             $notFoundHandler = $this->container->get('notFoundHandler');
             return $notFoundHandler($request, $response);
         }
 
         $validation = $this->validator->validate($request, [
-            'title'     => v::notEmpty(),
-            'slug'      => v::noWhitespace()->notEmpty()->slug()->permalinkAvailable($post->slug),
-            'content'   => v::notEmpty(),
-            'category'  => v::notEmpty()            
+            'email'     => v::noWhitespace()->notEmpty()->email()->emailAvailable($user->email),
+            'name'      => v::notEmpty()->alpha(),
+            'password'  => v::noWhitespace(),
         ]);
 
         if($validation->failed()){
             // $this->flash->addMessage('error', '');            
-            return $response->withRedirect($this->router->pathFor('post.edit', ['post'=>$request->getParam('id')]));                    
+            return $response->withRedirect($this->router->pathFor('user.edit', ['user'=>$request->getParam('id')]));                    
         }
 
-        Post::where('id', $request->getParam('id'))
+        $roles = [];
+        
+        foreach($request->getParams() as $key=>$value){
+            if(strcmp(substr($key, 0, 1), 'r')===0){
+                array_push($roles, str_replace('r', '', $key));
+            }
+        }
+
+        if(sizeof($roles)<=0){
+            $this->flash->addMessage('error', "Users must have at least one role assigned to them.");            
+            return $response->withRedirect($this->router->pathFor('user.edit', ['user'=>$request->getParam('id')]));           
+        }
+
+        $newPassword = $user->password;
+        if($request->getParam('password'))
+            $newPassword = password_hash($request->getParam('password'), PASSWORD_DEFAULT);
+
+        User::where('id', $request->getParam('id'))
             ->update([
-            'title'         => $request->getParam('title'),
-            'slug'          => mb_strtolower($request->getParam('slug')),
-            'published'     => $request->getParam('published')?1:0,  
-            'category_id'      => $request->getParam('category'),
-            'content'       => filter_var(strip_tags(htmlentities($request->getParam('content'))), FILTER_SANITIZE_STRING)
+                'email' => $request->getParam('email'),
+                'name' => $request->getParam('name'),
+                'password' =>  $newPassword
         ]);
 
-        $post = Post::find($request->getParam('id'));
+        $user = User::find($request->getParam('id'));
+        $user->setRoles($roles);       
         
-        $this->flash->addMessage('info', 'Post updated.');                    
-        return $response->withRedirect($this->router->pathFor('post.edit', ['post'=>$request->getParam('id')]));
+        $this->flash->addMessage('info', 'User updated.');                    
+        return $response->withRedirect($this->router->pathFor('user'));
     }
 
     public function remove($request, $response, $args){
-        $post = Post::find($args['post'])->with('user');
+        $user = User::find($args['user']);
         
-        if($post==NULL){
+        if($user==NULL){
             $notFoundHandler = $this->container->get('notFoundHandler');
             return $notFoundHandler($request, $response);
         }
 
-        $this->view->getEnvironment()->addGlobal('post', $post);
-        return $this->view->render($response, 'post\remove.twig');
+        $this->view->getEnvironment()->addGlobal('user', $user);
+        return $this->view->render($response, 'user\remove.twig');
     }
     public function delete($request, $response){
-        Post::destroy($request->getParam('id'));        
-        $this->flash->addMessage('info', 'Post deleted.');            
-        return $response->withRedirect($this->router->pathFor('post'));  
+        $user = User::find($request->getParam('id'));
+        $user->detachAndDelete();      
+        $this->flash->addMessage('info', 'User deleted.');            
+        return $response->withRedirect($this->router->pathFor('user'));  
     }
         
 }
