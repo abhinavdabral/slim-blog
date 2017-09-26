@@ -5,6 +5,7 @@ namespace App\ToHTML;
 use App\Models\User;
 use App\Models\Post;
 use Michelf\Markdown;
+use Carbon\Carbon;
 
 class ToHTML {
 
@@ -32,7 +33,30 @@ class ToHTML {
             'title'     => $post->title,
             'slug'      => $post->slug,
             'content'   => Markdown::defaultTransform($post->content),
-            'author'    => $post->user()->name
+            'author'    => $post->user->name,
+            'created_at'=> Carbon::parse($post->created_at)->format('l, jS \\of F Y'),
+            'updated_at'=> Carbon::parse($post->updated_at)->toDateString()
+        ];
+
+        $string = (function() use($args, $pageTemplate) {
+            
+            ob_start();
+            include($pageTemplate);
+            $var=ob_get_clean(); 
+            ob_end_clean();
+
+            return $var;;
+        })();
+        
+        return $string;
+    }
+
+    public function homepage()
+    {
+        $pageTemplate = $this->themeLocation.'/home.php';
+        $args = [
+            'title'     => "Home",
+            'posts'      => Post::with('user:id,name')->get()->toArray()
         ];
 
         $string = (function() use($args, $pageTemplate) {

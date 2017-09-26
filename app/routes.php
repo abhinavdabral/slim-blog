@@ -92,6 +92,13 @@ $app->group('', function() {
 
 })->add(new AuthMiddleware($container));
 
+$app->get('/dumphome', function($req, $resp){
+    
+    $page = $this->ToHTML->homepage();
+    $pathToFile = $this->ToHTML->savePage("index", $page);
+    return $resp->withRedirect($pathToFile);
+});
+
 $app->get('/dump/{post}', function($req, $resp, $args){
     
     $post = Post::find($args['post']);
