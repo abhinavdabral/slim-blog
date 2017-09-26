@@ -14,8 +14,8 @@ Everything pretty much. At this point it's just barebones. Basic intended functi
 
 # Change Log
 - v0.2 (26 Sep, 2017)
- - Core ACL implemented
- - MakeHTML works
- - CRUD on all models work as they should.
+  - Core ACL implemented
+  - MakeHTML works
+  - CRUD on all models work as they should.
 - v0.1 (03 Sep, 2017)
- - Initial Commit
+  - Initial Commit
